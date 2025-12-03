@@ -164,7 +164,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Ragam 2023</title>
+        <title>Hikma 2025</title>
         <meta name="description" content="Ragam 2023 | Home" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
