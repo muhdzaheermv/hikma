@@ -2,96 +2,90 @@ import { useEffect } from 'react'
 import gsap from 'gsap'
 import styles from '@/styles/Misc.module.css'
 
-export default function Eyes(){
+export default function Eyes() {
 
-     // For eyes follow
-     useEffect(()=> {
-        
-        let eyeLeft = document.getElementById('el')
-        let eyeRight= document.getElementById('er')
-        let pl = document.getElementById('pl')
-        let pr = document.getElementById('pr')
-        let bgText = document.getElementsByClassName(styles['bg-text'])[0]
+  useEffect(()=> {
+    const box = document.getElementById('eye-container')
+    const img = document.getElementById('el')            // now the <img>
+    const bgText = document.getElementsByClassName(styles['bg-text'])[0]
 
-        let mouseX,mouseY
+    if (!box || !img || !bgText) return
 
-        let box = document.getElementById('eye-container')
-        box.addEventListener('mousemove', throttled(100, function(e){
-            mouseX = ( box.clientWidth/2 - e.offsetX )*0.06;
-            mouseY = ( box.clientHeight/2 - e.offsetY )*0.07;
+    let mouseX, mouseY
 
-            gsap.to(eyeLeft, {duration: 0.5, x: -mouseX*2, y:-mouseY*2})
-            gsap.to(eyeRight, {duration: 0.5, x: -mouseX*2, y:-mouseY*2})
-            gsap.to(bgText, {duration: 0.5, x:mouseX*0.5, y:mouseY*0.5 })
+    // mouse move handler (throttled)
+    const mouseHandler = throttled(16, function(e){
+      // center-based offsets
+      mouseX = ( box.clientWidth/2 - e.offsetX ) * 0.06
+      mouseY = ( box.clientHeight/2 - e.offsetY ) * 0.07
 
-            gsap.to(pl, {duration: 0.3, x: -mouseX*2.6, y: -mouseY*2.6 })
-            gsap.to(pr, {duration: 0.3, x: -mouseX*2.6, y: -mouseY*2.6 })
-        }))
-
-        // Need to move eyes back to initial position
-        // box.addEventListener('mouseleave', function(){
-            // gsap.set(eyeLeft,{x: 0, y: 0})
-            // gsap.set(eyeRight,{x: 0, y: 0})
-        // })
-
-        // for gyro effect eyes
-        window.addEventListener('deviceorientation', (e) => gyroEye(e,box,eyeLeft,pl,bgText))
-
-        return(() => window.removeEventListener('deviceorientation', (e) => gyroEye(e,box,eyeLeft,pl,bgText))
-        )
-    },[])
-
-    // function for gyro effect on eye
-    const gyroEye = throttled(100, function (e,box,eyeLeft,pl,bgText){
-        const beta = e.beta
-        const gamma = e.gamma
-
-        let left = gamma*8 - box.clientHeight/2;
-        let top = beta*3 - box.clientHeight/2;
-        
-        eyeLeft.style.left = left*0.09+'px'
-        eyeLeft.style.top = top*0.09 +'px'
-
-        gsap.to(bgText, {duration: 0.5, x:-left*0.2, y:-top*0.2 })
-
-        pl.style.left=left*0.065+'px'
-        pl.style.top=top*0.15+'px'
-
+      // move the image and the bg text for parallax
+      gsap.to(img, { duration: 0.5, x: -mouseX * 2, y: -mouseY * 2, ease: 'power3.out' })
+      gsap.to(bgText, { duration: 0.5, x: mouseX * 0.5, y: mouseY * 0.5, ease: 'power3.out' })
     })
 
-    function blink(){
-        let el = document.getElementById('el')
-        gsap.to(el, {duration: 0.001, scaleY: 0})
-        setTimeout(()=> gsap.to(el,{duration: 0.001, scaleY: 1}), 350)
+    box.addEventListener('mousemove', mouseHandler)
+
+    // device orientation (gyro) handler - throttled wrapper
+    const gyroHandler = throttled(100, (e) => {
+      // a gentle mapping from device orientation to movement
+      const beta = e.beta || 0    // front/back tilt
+      const gamma = e.gamma || 0  // left/right tilt
+
+      // create small offsets from tilt
+      const left = gamma * 6 - box.clientWidth / 2
+      const top = beta * 3 - box.clientHeight / 2
+
+      // animate to new positions
+      gsap.to(img, { duration: 0.5, x: left * 0.02, y: top * 0.02, ease: 'power3.out' })
+      gsap.to(bgText, { duration: 0.5, x: -left * 0.2, y: -top * 0.2, ease: 'power3.out' })
+    })
+
+    window.addEventListener('deviceorientation', gyroHandler)
+
+    // cleanup
+    return () => {
+      box.removeEventListener('mousemove', mouseHandler)
+      window.removeEventListener('deviceorientation', gyroHandler)
     }
+  }, [])
 
-    // throttle function for smoother animations
-    function throttled(delay, fn) {
-        let lastCall = 0;
-        return function (...args) {
-          const now = (new Date).getTime();
-          if (now - lastCall < delay) {
-            return;
-          }
-          lastCall = now;
-          return fn(...args);
-        }
+  // simple throttle used above
+  function throttled(delay, fn) {
+    let lastCall = 0;
+    return function (...args) {
+      const now = (new Date).getTime();
+      if (now - lastCall < delay) {
+        return;
+      }
+      lastCall = now;
+      return fn(...args);
     }
+  }
 
-    return(
-        <div className={`${styles['eyes-container']} misc-anim`} id='eye-container'>
+  return(
+    <div className={`${styles['eyes-container']} misc-anim`} id='eye-container'>
 
-            <div className={styles.eyes} id='el' onClick={blink}>
-                <div className={styles.pupil} id='pl'>
-                    <div className={styles.reflection}></div>
-                </div>
-            </div>
+      {/* Replace the CSS eye with an image. Put the file in /public/plane.png */}
+      <img
+        id="el"
+        src="/plane.png"
+        alt="plane"
+        className={styles.plane}
+        draggable={false}
+        style={{ width: "220px", height: "auto" }}
+      />
 
-            <div className={styles['bg-text']}>
-                ASPIRE<br />ASPIRE
-            </div>
+      <div className={styles['bg-text']}
+      style={{     
+        transform: "translate(-50%, -50%)",
+        zIndex: -1,          // <-- puts text behind image
+        opacity: 0.2,        // optional (looks cleaner behind)
+        pointerEvents: "none"
+      }}>
+        ASPIRE
+      </div>
 
-        </div>
-    )
+    </div>
+  )
 }
-
