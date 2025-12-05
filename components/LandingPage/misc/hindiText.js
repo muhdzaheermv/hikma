@@ -3,7 +3,8 @@ import styles from '@/styles/Misc.module.css'
 
 export default function HindiText(){
 
-    let hindiLetters = ['रा','ग','म','की','ज्वा','ला','चि','र','स्था','यी','है']
+    let hindiLetters = ['हिक्','मा','यू','नि','यन'];
+
 
     //For Hindi speed ramp
     useEffect(() => {
@@ -15,7 +16,7 @@ export default function HindiText(){
                 let text = document.querySelectorAll('#hindi-text-switch')[0]
                 text.style.transform = 'scale(1.85)'
                 text.innerHTML=hindiLetters[i]
-                i = (i+1)%11
+                i = (i+1)%5
             },150)
         })
 

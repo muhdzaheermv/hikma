@@ -88,7 +88,7 @@ export default function Eyes(){
             </div>
 
             <div className={styles['bg-text']}>
-                AN EYE<br />FOR ART
+                ASPIRE<br />ASPIRE
             </div>
 
         </div>
