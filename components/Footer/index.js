@@ -13,7 +13,7 @@ const Footer = () => {
     { logo: Facebook, link: "https://www.facebook.com/Ragam.nitc/" },
   ];
 
-  const email = "ragam@nitc.ac.in";
+  const email = "Muhammed zaheer mv";
 
   const links = [
     [
@@ -51,7 +51,7 @@ const Footer = () => {
         </div>
       </div>
       <div className={styles.BottomSection}>
-        <div>©2023 - Ragam NITC</div>
+        <div>©2025 - Hikma Aspire</div>
         <div>Terms & Conditions, Privacy</div>
       </div>
     </footer>
